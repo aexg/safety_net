@@ -10,21 +10,23 @@ import os
 import random
 import requests
 import time
-from urllib.request import urlopen
 
 
 def request_until_succeed(url):
     success = False
     while success is False:
         try:
-            response = urlopen(url)
-            if response.getcode() == 200:
+            response = requests.get(url)
+            if response.status_code == 200:
                 success = True
-        except (Exception):
+            else:
+                print('\n{}: status {} for URL {}, retrying in 5s'.format(datetime.datetime.now(), response.status_code, url) )
+                time.sleep(5)
+        except Exception as e:
+            print('\n{}: error for URL {}: {}, retrying in 5s'.format(datetime.datetime.now(), url, e))
             time.sleep(5)
-            print('Error for URL %s: %s' % (url, datetime.datetime.now()))
 
-    return response.read().decode('utf8')
+    return response.text
 
 
 def getFacebookPageFeedData(page_id, msg_limit, access_token):
